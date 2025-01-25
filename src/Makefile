@@ -38,6 +38,8 @@ PROJECT_SOURCE_FILES  ?= uncool.c cmd.c
 RAYLIB_SRC_PATH       ?= /home/dave/src/raylib/src
 RAYLIB_INCLUDE_PATH   ?= $(RAYLIB_SRC_PATH)
 RAYLIB_LIB_PATH       ?= $(RAYLIB_SRC_PATH)
+RAYGUI_INCLUDE_PATH   ?=/home/dave/src/raygui/src
+DAVLIB_INCLUDE_PATH   ?=/home/dave/src/davlib/src
 
 # Library type used for raylib: STATIC (.a) or SHARED (.so/.dll)
 RAYLIB_LIBTYPE        ?= STATIC
@@ -181,7 +183,7 @@ endif
 
 # Define include paths for required headers: INCLUDE_PATHS
 #------------------------------------------------------------------------------------------------
-INCLUDE_PATHS += -I. -Iexternal -I$(RAYLIB_INCLUDE_PATH)
+INCLUDE_PATHS += -I. -Iexternal -I$(RAYLIB_INCLUDE_PATH) -I$(DAVLIB_INCLUDE_PATH)
 
 # Define additional directories containing required header files
 ifeq ($(PLATFORM),PLATFORM_DRM)

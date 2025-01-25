@@ -15,5 +15,3 @@ typedef enum {
 } CmdID;
 
 void UpdateState(GameState *state);
-void UpdateCubePosition(Vector3 *pCubePosition, int cmd, float value,
-                        bool absolute);
