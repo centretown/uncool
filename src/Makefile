@@ -30,16 +30,16 @@ PLATFORM              ?= PLATFORM_DESKTOP
 
 # Define project variables
 PROJECT_NAME          ?= uncool
-PROJECT_VERSION       ?= 1.0
+PROJECT_VERSION       ?= 0.1.0
 PROJECT_BUILD_PATH    ?= .
-PROJECT_SOURCE_FILES  ?= uncool.c cmd.c
+PROJECT_SOURCE_FILES  ?= uncool.c cmd.c menus.c
 
 # raylib library variables
 RAYLIB_SRC_PATH       ?= /home/dave/src/raylib/src
 RAYLIB_INCLUDE_PATH   ?= $(RAYLIB_SRC_PATH)
 RAYLIB_LIB_PATH       ?= $(RAYLIB_SRC_PATH)
 RAYGUI_INCLUDE_PATH   ?=/home/dave/src/raygui/src
-DAVLIB_INCLUDE_PATH   ?=/home/dave/src/davlib/src
+DAVLIB_INCLUDE_PATH   ?=/home/dave/src/davlib
 
 # Library type used for raylib: STATIC (.a) or SHARED (.so/.dll)
 RAYLIB_LIBTYPE        ?= STATIC
@@ -53,10 +53,10 @@ BUILD_MODE            ?= RELEASE
 # PLATFORM_WEB: Default properties
 BUILD_WEB_ASYNCIFY    ?= FALSE
 BUILD_WEB_SHELL       ?= minshell.html
-BUILD_WEB_HEAP_SIZE   ?= 128MB
-BUILD_WEB_STACK_SIZE  ?= 1MB
+BUILD_WEB_HEAP_SIZE   ?= 512MB
+BUILD_WEB_STACK_SIZE  ?= 4MB
 BUILD_WEB_ASYNCIFY_STACK_SIZE ?= 1048576
-BUILD_WEB_RESOURCES   ?= FALSE
+BUILD_WEB_RESOURCES   ?= TRUE
 BUILD_WEB_RESOURCES_PATH  ?= resources
 
 # Determine PLATFORM_OS in case PLATFORM_DESKTOP selected
@@ -199,9 +199,10 @@ endif
 
 # Define library paths containing required libs: LDFLAGS
 #------------------------------------------------------------------------------------------------
-LDFLAGS = -L. -L$(RAYLIB_LIB_PATH)
+LDFLAGS = -L.
 
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
+    LDFLAGS += -L$(RAYLIB_LIB_PATH)
     ifeq ($(PLATFORM_OS),WINDOWS)
         # NOTE: The resource .rc file contains windows executable icon and properties
         LDFLAGS += $(PROJECT_NAME).rc.data
@@ -304,6 +305,7 @@ endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
     # Libraries for web (HTML5) compiling
     LDLIBS = web/libraylib.a
+    PROJECT_BUILD_PATH = www
 endif
 ifeq ($(PLATFORM),PLATFORM_DRM)
     # Libraries for DRM compiling
@@ -360,6 +362,6 @@ ifeq ($(PLATFORM),PLATFORM_DRM)
 	rm -fv *.o
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
-	rm -fv *.o $(PROJECT_NAME).html $(PROJECT_NAME).js
+	rm -fv *.o $(PROJECT_NAME).html $(PROJECT_NAME).js  $(PROJECT_NAME).wasm
 endif
 	@echo Cleaning done

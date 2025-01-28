@@ -1,4 +1,0 @@
-#!/bin/bash
-
-make -e -B PLATFORM=PLATFORM_WEB
-make -e -B PLATFORM=PLATFORM_DESKTOP
