@@ -2,7 +2,6 @@
 #define UNCOOL_DEFINED
 
 #include "davlib.h"
-
 typedef enum MoveMode {
   MODE_MOVE_CUBE,
   MODE_MOVE_CAMERA_POSITION,
@@ -37,6 +36,7 @@ typedef struct GameState {
   Rectangle dest;
   Vector2 origin;
   float rotation;
+  Menu *menu;
 } GameState;
 
 typedef enum {
@@ -52,4 +52,6 @@ void UpdateState(GameState *state, GameState *initial);
 const char *ModeTitle(MoveMode mode);
 void DrawSettingsMenu(double now);
 void SetMenuState(GameState *state);
+InputMode UpdateMode(InputMode mode, double now);
+
 #endif // UNCOOL_DEFINED

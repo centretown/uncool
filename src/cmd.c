@@ -1,11 +1,6 @@
-#include "src/menu.h"
-#include "src/vec.h"
-#include <inttypes.h>
-#include <raylib.h>
-#include <stdio.h>
-#define DAVLIB_IMPLEMENTATION
 #include "davlib.h"
 #include "uncool.h"
+#include <inttypes.h>
 
 inline Vector3 UpdateVectorFromInput(Vector3 vec, Vector3 base, float scaleKey,
                                      float scaleAxis, float scaleButton) {
@@ -29,21 +24,7 @@ InputMode UpdateMode(InputMode mode, double now) {
   return mode;
 }
 
-AutomationEvent event;
-
 void UpdateState(GameState *state, GameState *initial) {
-  state->now = GetTime();
-  if (state->now > state->earthRate) {
-    state->earthRate = state->now + 1.0f;
-    state->earthIndex++;
-    state->earthIndex = CLAMPNUM(state->earthIndex, 0, 9);
-  }
-
-  state->inputMode = UpdateMode(state->inputMode, state->now);
-  if (state->inputMode == SELECTION_MODE) {
-    return;
-  }
-
   switch (state->moveMode) {
   case MODE_MOVE_CUBE:
     state->cubePosition = UpdateVectorFromInput(
@@ -64,13 +45,12 @@ void UpdateState(GameState *state, GameState *initial) {
 
   case MODE_MOVE_BACKGROUND: {
     state->source = UpdateVectorFromInput(state->source, initial->source, 10.0f,
-                                          10.0f, 1.0f);
-    CLAMPNUM(0, 0, 0);
-    return;
+                                          10.0f, 10.0f);
+    break;
   }
 
   case MODE_CHANGE_FOVY:
   default:
-    return;
+    break;
   }
 }
