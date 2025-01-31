@@ -1,4 +1,5 @@
 #include "davlib.h"
+#include "raylib.h"
 #include "uncool.h"
 #include <inttypes.h>
 
@@ -20,16 +21,19 @@ InputMode UpdateMode(InputMode mode, double now) {
       return mode;
     }
   }
-  mode = (mode == GAME_MODE) ? SELECTION_MODE : GAME_MODE;
+  mode = (mode == GAME_MODE) ? MENU_MODE : GAME_MODE;
   return mode;
 }
 
 void UpdateState(GameState *state, GameState *initial) {
   switch (state->moveMode) {
-  case MODE_MOVE_CUBE:
-    state->cubePosition = UpdateVectorFromInput(
-        state->cubePosition, initial->cubePosition, 0.2f, 4.0f, 0.2f);
+  case MODE_MOVE_SHAPE: {
+    Shape *shape = state->shapes[state->currentShape];
+    Vector3 pos = shape->Position(shape);
+    pos = UpdateVectorFromInput(pos, shape->home, 0.2f, 4.0f, 0.2f);
+    shape->Move(shape, pos);
     break;
+  }
   case MODE_MOVE_CAMERA_POSITION:
     state->camera.position = UpdateVectorFromInput(
         state->camera.position, initial->camera.position, 0.2f, 4.0f, 0.2f);

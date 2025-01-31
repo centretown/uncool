@@ -2,41 +2,49 @@
 #define UNCOOL_DEFINED
 
 #include "davlib.h"
+#include "raylib.h"
 typedef enum MoveMode {
-  MODE_MOVE_CUBE,
+  MODE_MOVE_SHAPE,
   MODE_MOVE_CAMERA_POSITION,
   MODE_MOVE_CAMERA_TARGET,
   MODE_MOVE_CAMERA_UP,
   MODE_CHANGE_FOVY,
   MODE_MOVE_BACKGROUND,
-  MODE_MOVE_BEGIN = MODE_MOVE_CUBE,
+  MODE_MOVE_BEGIN = MODE_MOVE_SHAPE,
   MODE_MOVE_END = MODE_MOVE_CAMERA_UP,
 } MoveMode;
 
 typedef enum InputMode {
-  GAME_MODE,      // fast action
-  SELECTION_MODE, // controlled input
+  GAME_MODE, // fast action
+  MENU_MODE, // controlled input
 } InputMode;
+
+typedef struct Earth {
+  Texture2D tex[10];
+  int current;
+  int count;
+  double rate;
+  Rectangle dest;
+} Earth;
 
 typedef struct GameState {
   Camera camera;
-  Vector3 cubePosition;
   InputMode inputMode;
   MoveMode moveMode;
   Color labelColor;
   Color valueColor;
   Texture2D background;
-  Texture2D earth[10];
-  int earthIndex;
-  int earthCount;
-  Rectangle earthdest;
-  double earthRate;
+  Texture2D projection;
+  Earth *earth;
   double now;
   Vector3 source;
   Rectangle dest;
   Vector2 origin;
   float rotation;
   Menu *menu;
+  int currentShape;
+  int shapeCount;
+  Shape **shapes;
 } GameState;
 
 typedef enum {

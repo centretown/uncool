@@ -32,13 +32,12 @@ PLATFORM              ?= PLATFORM_DESKTOP
 PROJECT_NAME          ?= uncool
 PROJECT_VERSION       ?= 0.1.0
 PROJECT_BUILD_PATH    ?= .
-PROJECT_SOURCE_FILES  ?= uncool.c cmd.c menus.c
+PROJECT_SOURCE_FILES  ?= uncool.c cmd.c gamestate.c model.c models.c
 
 # raylib library variables
 RAYLIB_SRC_PATH       ?= /home/dave/src/raylib/src
 RAYLIB_INCLUDE_PATH   ?= $(RAYLIB_SRC_PATH)
 RAYLIB_LIB_PATH       ?= $(RAYLIB_SRC_PATH)
-RAYGUI_INCLUDE_PATH   ?=/home/dave/src/raygui/src
 DAVLIB_INCLUDE_PATH   ?=/home/dave/src/davlib
 
 # Library type used for raylib: STATIC (.a) or SHARED (.so/.dll)
@@ -53,8 +52,8 @@ BUILD_MODE            ?= RELEASE
 # PLATFORM_WEB: Default properties
 BUILD_WEB_ASYNCIFY    ?= FALSE
 BUILD_WEB_SHELL       ?= minshell.html
-BUILD_WEB_HEAP_SIZE   ?= 512MB
-BUILD_WEB_STACK_SIZE  ?= 4MB
+BUILD_WEB_HEAP_SIZE   ?= 256MB
+BUILD_WEB_STACK_SIZE  ?= 2MB
 BUILD_WEB_ASYNCIFY_STACK_SIZE ?= 1048576
 BUILD_WEB_RESOURCES   ?= TRUE
 BUILD_WEB_RESOURCES_PATH  ?= resources
