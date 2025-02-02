@@ -2,7 +2,6 @@
 #define UNCOOL_DEFINED
 
 #include "davlib.h"
-#include "raylib.h"
 typedef enum MoveMode {
   MODE_MOVE_SHAPE,
   MODE_MOVE_CAMERA_POSITION,

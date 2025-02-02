@@ -50,12 +50,21 @@ static MenuItem *menuItems[] = {
         .label = "Select Shape",
         .choices =
             (char *[]){
+                "Mesh Poly",
+                "Mesh Plane",
+                "Mesh Cube",
+                "Mesh Sphere",
+                "Mesh Hemisphere",
+                "Mesh Cylinder",
+                "Mesh Cone",
+                "Mesh Torus",
+                "Mesh Knot",
                 "Red Cube",
                 "Blue Sphere",
                 "Green Capsule",
                 "Yellow Cylinder",
             },
-        .choiceCount = 4,
+        .choiceCount = 12,
         .onChoose = OnChooseShape,
     },
     &(MenuItem){
@@ -99,46 +108,7 @@ Menu menu = (Menu){
     .custom = 0, // gamestate passed to handlers
 };
 
-static Shape *gameShapes[] = {
-    &(Shape){.typeID = CUBE,
-             .rate = 1.0f,
-             .shapePtr =
-                 &(CubeShape){
-                     .position = (Vector3){.x = 1.0f, .y = 1.0f, .z = 1.0f},
-                     .size = (Vector3){.1f, .1f, .1f},
-                     .color = RED,
-                 }},
-    &(Shape){.typeID = SPHERE,
-             .rate = 1.0f,
-             .shapePtr =
-                 &(SphereShape){
-                     .position = (Vector3){.x = 0.3f, .y = 1.0f, .z = 1.0f},
-                     .radius = 0.2f,
-                     .color = BLUE,
-                 }},
-    &(Shape){.typeID = CAPSULE,
-             .rate = 1.0f,
-             .shapePtr =
-                 &(CapsuleShape){
-                     .startPos = (Vector3){.x = .5f, .y = 0.0f, .z = 2.4f},
-                     .endPos = (Vector3){.x = 1.5f, .y = 1.0f, .z = 1.4f},
-                     .radius = 0.1f,
-                     .slices = 40,
-                     .rings = 10,
-                     .color = GREEN,
-                 }},
-    &(Shape){.typeID = CYLINDER,
-             .rate = 1.0f,
-             .shapePtr =
-                 &(CylinderShape){
-                     .position = (Vector3){.x = 0.2f, .y = 1.1f, .z = 1.3f},
-                     .radiusTop = .1f,
-                     .radiusBottom = .15f,
-                     .height = .2,
-                     .slices = 40,
-                     .color = YELLOW,
-                 }},
-};
+#include "shapes.c"
 
 GameState gameState = (GameState){
     .camera =

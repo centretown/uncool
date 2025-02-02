@@ -32,7 +32,7 @@ PLATFORM              ?= PLATFORM_DESKTOP
 PROJECT_NAME          ?= uncool
 PROJECT_VERSION       ?= 0.1.0
 PROJECT_BUILD_PATH    ?= .
-PROJECT_SOURCE_FILES  ?= uncool.c cmd.c gamestate.c model.c models.c
+PROJECT_SOURCE_FILES  ?= uncool.c cmd.c gamestate.c
 
 # raylib library variables
 RAYLIB_SRC_PATH       ?= /home/dave/src/raylib/src
