@@ -36,16 +36,36 @@ void OnChooseFont(void *menuptr, int current, int currentChoice) {
 
 static Theme theme = (Theme){
     .backgroundColor = BLACK,
-    .titleColor = GREEN,
-    .titleActive = ORANGE,
-    .labelActive = (Color){.r = 0x00, .g = 0xb7, .b = 0x9b, .a = 0xff},
+    .titleColor = (Color){.r = 0x00, .g = 0xf0, .b = 0x30, .a = 0x7f},
     .labelColor = (Color){.r = 0x00, .g = 0x89, .b = 0x79, .a = 0x7f},
     .valueColor = (Color){.r = 0x7b, .g = 0x4f, .b = 0x13, .a = 0x7f},
-    .valueActive = YELLOW,
+
+    .titleHover = (Color){.r = 0x00, .g = 0xf0, .b = 0x30, .a = 0xcf},
+    .labelHover = (Color){.r = 0x89, .g = 0x89, .b = 0x79, .a = 0xcf},
+    .valueHover = (Color){.r = 0x7b, .g = 0x4f, .b = 0x13, .a = 0xcf},
+
+    .titleActive = (Color){.r = 0x00, .g = 0xf0, .b = 0x30, .a = 0xff},
+    .labelActive = (Color){.r = 0x00, .g = 0x89, .b = 0x79, .a = 0xff},
+    .valueActive = (Color){.r = 0xcb, .g = 0x7f, .b = 0x13, .a = 0xff},
+
     .fontSize = 24,
 };
 
 static MenuItem *menuItems[] = {
+    &(MenuItem){
+        .label = "Font Size",
+        .choices =
+            (char *[]){
+                "24",
+                "32",
+                "40",
+                "48",
+                "56",
+                "18",
+            },
+        .choiceCount = 6,
+        .onChoose = OnChooseFont,
+    },
     &(MenuItem){
         .label = "Select Shape",
         .choices =
@@ -81,20 +101,6 @@ static MenuItem *menuItems[] = {
         .choiceCount = 6,
         .onChoose = OnChooseMode,
     },
-    &(MenuItem){
-        .label = "Font Size",
-        .choices =
-            (char *[]){
-                "24",
-                "32",
-                "40",
-                "48",
-                "56",
-                "18",
-            },
-        .choiceCount = 6,
-        .onChoose = OnChooseFont,
-    },
 };
 
 Menu menu = (Menu){
@@ -106,6 +112,8 @@ Menu menu = (Menu){
     .itemCount = sizeof(menuItems) / sizeof(menuItems[0]),
     .items = menuItems,
     .custom = 0, // gamestate passed to handlers
+    .colorDim = (Color){.a = 96, .r = 96, .g = 255, .b = 255},
+    .colorHover = (Color){.a = 255, .r = 96, .g = 255, .b = 255},
 };
 
 #include "shapes.c"

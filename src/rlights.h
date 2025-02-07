@@ -6,7 +6,7 @@
 *
 *   #define RLIGHTS_IMPLEMENTATION
 *       Generates the implementation of the library into the included file.
-*       If not defined, the library is in header only mode and can be included in other headers 
+*       If not defined, the library is in header only mode and can be included in other headers
 *       or source files without problems. But only ONE file should hold the implementation.
 *
 *   LICENSE: zlib/libpng
@@ -33,6 +33,8 @@
 #ifndef RLIGHTS_H
 #define RLIGHTS_H
 
+#include "raylib.h"
+
 //----------------------------------------------------------------------------------
 // Defines and Macros
 //----------------------------------------------------------------------------------
@@ -43,14 +45,14 @@
 //----------------------------------------------------------------------------------
 
 // Light data
-typedef struct {   
+typedef struct {
     int type;
     bool enabled;
     Vector3 position;
     Vector3 target;
     Color color;
     float attenuation;
-    
+
     // Shader locations
     int enabledLoc;
     int typeLoc;
@@ -91,7 +93,6 @@ void UpdateLightValues(Shader shader, Light light);         // Send light proper
 
 #if defined(RLIGHTS_IMPLEMENTATION)
 
-#include "raylib.h"
 
 //----------------------------------------------------------------------------------
 // Defines and Macros
@@ -138,7 +139,7 @@ Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shade
         light.colorLoc = GetShaderLocation(shader, TextFormat("lights[%i].color", lightsCount));
 
         UpdateLightValues(shader, light);
-        
+
         lightsCount++;
     }
 
@@ -146,7 +147,7 @@ Light CreateLight(int type, Vector3 position, Vector3 target, Color color, Shade
 }
 
 // Send light properties to shader
-// NOTE: Light shader locations should be available 
+// NOTE: Light shader locations should be available
 void UpdateLightValues(Shader shader, Light light)
 {
     // Send to shader light enabled state and type
@@ -162,7 +163,7 @@ void UpdateLightValues(Shader shader, Light light)
     SetShaderValue(shader, light.targetLoc, target, SHADER_UNIFORM_VEC3);
 
     // Send to shader light color values
-    float color[4] = { (float)light.color.r/(float)255, (float)light.color.g/(float)255, 
+    float color[4] = { (float)light.color.r/(float)255, (float)light.color.g/(float)255,
                        (float)light.color.b/(float)255, (float)light.color.a/(float)255 };
     SetShaderValue(shader, light.colorLoc, color, SHADER_UNIFORM_VEC4);
 }

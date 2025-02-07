@@ -1,6 +1,5 @@
 // uncool
 #include "raylib.h"
-#include <stdio.h>
 #define DAVLIB_IMPLEMENTATION
 #include "uncool.h"
 
@@ -17,8 +16,6 @@
 #include <emscripten/emscripten.h>
 #endif
 
-static void UpdateDrawFrame(void);
-
 // in gamestate.c
 extern GameState gameState, initialState;
 
@@ -26,26 +23,24 @@ static Shader shader = {0};
 static int ambientLoc = 0;
 static Light lights[MAX_LIGHTS] = {0};
 
-int main() {
-  gameState.menu->custom = &gameState;
-  initialState = gameState;
+// Create lights
+void CreateLights(Shader shader) {
+  lights[0] = CreateLight(LIGHT_POINT, (Vector3){-2, 1, -2}, Vector3Zero(),
+                          YELLOW, shader);
+  lights[1] =
+      CreateLight(LIGHT_POINT, (Vector3){2, 1, 2}, Vector3Zero(), RED, shader);
+  lights[2] = CreateLight(LIGHT_POINT, (Vector3){-2, 1, 2}, Vector3Zero(),
+                          GREEN, shader);
+  lights[3] = CreateLight(LIGHT_POINT, (Vector3){2, 1, -2}, Vector3Zero(), BLUE,
+                          shader);
+}
 
-  // Set MSAA 4X hint before windows creation
-  SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_MAXIMIZED);
-  SetTraceLogLevel(LOG_NONE);
-
-  InitWindow(1260, 720, "Centretown - UNCOOL");
-  int monitor = GetCurrentMonitor();
-  SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
-  SetWindowPosition(0, 0);
-
+void LoadTextures() {
   // load resources
-  // gameState.background = LoadTexture("resources/background.png");
-  // for (int i = 0; i < 10; i++) {
-  //   const char *fname = TextFormat("resources/%03d.png", i + 1);
-  //   gameState.earth->tex[i] = LoadTexture(fname);
-  //   printf("%s\n", fname);
-  // }
+  gameState.menuInactivePic = LoadTexture("resources/menu-20.png");
+  gameState.menuActivePic = LoadTexture("resources/menu_open-20.png");
+  gameState.menu->leftArrow = LoadTexture("resources/left-20.png");
+  gameState.menu->rightArrow = LoadTexture("resources/right-20.png");
 
   // Load basic lighting shader
   shader = LoadShader(
@@ -62,78 +57,61 @@ int main() {
   SetShaderValue(shader, ambientLoc, (float[4]){0.1f, 0.1f, 0.1f, 1.0f},
                  SHADER_UNIFORM_VEC4);
 
-  // Create lights
-
-  lights[0] = CreateLight(LIGHT_POINT, (Vector3){-2, 1, -2}, Vector3Zero(),
-                          YELLOW, shader);
-  lights[1] =
-      CreateLight(LIGHT_POINT, (Vector3){2, 1, 2}, Vector3Zero(), RED, shader);
-  lights[2] = CreateLight(LIGHT_POINT, (Vector3){-2, 1, 2}, Vector3Zero(),
-                          GREEN, shader);
-  lights[3] = CreateLight(LIGHT_POINT, (Vector3){2, 1, -2}, Vector3Zero(), BLUE,
-                          shader);
-
-  Image image = LoadImage("wood.jpg");
-  gameState.projection = LoadTextureFromImage(image);
-  Material material = LoadMaterialDefault();
-  material.shader = shader; // Set shader effect to 3d model
+  gameState.projection = LoadTexture("wood.jpg");
+  gameState.material = LoadMaterialDefault();
+  gameState.material.shader = shader; // Set shader effect to 3d model
   // texture gets bound to models
-  material.maps[MATERIAL_MAP_ROUGHNESS].texture = gameState.projection;
-  material.maps[MATERIAL_MAP_DIFFUSE].color =
+  gameState.material.maps[MATERIAL_MAP_ROUGHNESS].texture =
+      gameState.projection;
+  gameState.material.maps[MATERIAL_MAP_DIFFUSE].color =
       (Color){.r = 0, .g = 255, .b = 0, .a = 255};
 
-  if (!IsMaterialValid(material)) {
+  if (!IsMaterialValid(gameState.material)) {
     printf("MATERIAL INVALID\n");
-  } else {
-    printf("MATERIAL ok\n");
   }
+}
 
-  InitShapes(gameState.shapeCount, gameState.shapes, material);
+static Color colorDim = (Color){.a = 63, .r = 96, .g = 255, .b = 255};
+static Color colorHover = (Color){.a = 255, .r = 96, .g = 255, .b = 255};
 
-#if defined(PLATFORM_WEB)
-  emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
-#else
-  SetTargetFPS(60);            // Set our game to run at 60 frames-per-second
-  while (!WindowShouldClose()) // Detect window close button or ESC key
-  {
-    UpdateDrawFrame();
-  }
-#endif
+void Setup() {
+  gameState.menu->custom = &gameState;
+  initialState = gameState;
 
+  // Set MSAA 4X hint before windows creation
+  SetConfigFlags(FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT |
+                 FLAG_WINDOW_MAXIMIZED);
+  SetTraceLogLevel(LOG_NONE);
+
+  InitWindow(1260, 720, "Centretown - UNCOOL");
+  int monitor = GetCurrentMonitor();
+  SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
+  SetWindowPosition(0, 0);
+
+  LoadTextures();
+  CreateLights(shader);
+
+  InitShapes(gameState.shapeCount, gameState.shapes, gameState.material);
+}
+
+void Unload() {
   for (int i = 0; i < gameState.shapeCount; i++) {
     gameState.shapes[i]->Unload(gameState.shapes[i]);
   }
-
   UnloadShader(shader); // Unload shader
   // UnloadTexture(gameState.background);
-  // UnloadTexture(gameState.projection);
-  // for (int i = 0; i < 10; i++) {
-  //   UnloadTexture(gameState.earth->tex[i]);
-  // }
-  return 0;
+  UnloadTexture(gameState.projection);
+  UnloadTexture(gameState.menuInactivePic);
+  UnloadTexture(gameState.menuActivePic);
+  UnloadTexture(gameState.menu->leftArrow);
+  UnloadTexture(gameState.menu->rightArrow);
 }
 
 // Update and draw game frame
-static void UpdateDrawFrame(void) {
+void Loop(void) {
   gameState.now = GetTime();
-  if (IsWindowFocused()) {
-    gameState.inputMode = UpdateMode(gameState.inputMode, gameState.now);
-    if (gameState.inputMode == MENU_MODE) {
-      NavigateMenu(gameState.menu, gameState.now);
-    } else { // GAME_MODE
-      UpdateState(&gameState, &initialState);
-    }
-  }
-
   gameState.dest.width = (float)GetRenderWidth();
   gameState.dest.height = (float)GetRenderHeight();
-
-  // pan region
-  // Rectangle source;
-  // source.x = gameState.source.x;
-  // source.y = gameState.source.y;
-  // source.width = gameState.dest.width;
-  // source.height = gameState.dest.height;
 
   Shape *shape = gameState.shapes[gameState.currentShape];
   Vector3 pos = shape->Position(shape);
@@ -142,43 +120,59 @@ static void UpdateDrawFrame(void) {
                  SHADER_UNIFORM_VEC3);
 
   BeginDrawing();
-
   ClearBackground(BLACK);
-  // Earth *earth = gameState.earth;
-  // if (gameState.now > earth->rate) {
-  //   earth->rate = gameState.now + 1.0f;
-  //   earth->current++;
-  //   earth->current = CLAMPNUM(earth->current, 0, 9);
-  // }
-
-  // #ifndef PLATFORM_WEB
-  //   SetTextureWrap(gameState.background, TEXTURE_WRAP_MIRROR_REPEAT);
-  // #endif // PLATFORM_WEB
-  //   DrawTexturePro(gameState.background, source, gameState.dest,
-  //   gameState.origin,
-  //                  gameState.rotation, WHITE);
-  //   // DrawTexture(gameState.background, 0, 0, WHITE);
-  //   DrawTextureEx(earth->tex[earth->current],
-  //                 (Vector2){.x = gameState.dest.width * .6f,
-  //                           .y = gameState.dest.height * .1f},
-  //                 0.0f, 0.12, WHITE);
-
   BeginMode3D(gameState.camera);
   BeginShaderMode(shader);
-
-  // DrawCube(Vector3Zero(), 2.0, 4.0, 2.0, WHITE);
   shape->Draw(shape);
-
   DrawPlane(Vector3Zero(), (Vector2){4.0, 4.0}, WHITE);
-  // DrawCube(Vector3Zero(), 2.0, 4.0, 2.0, WHITE);
-
   EndShaderMode();
-
   EndMode3D();
+  // DrawFPS(10, 10);
+  Rectangle menuPos = (Rectangle){.x = 2,
+                                  .y = 2,
+                                  .width = gameState.menuActivePic.width,
+                                  .height = gameState.menuActivePic.height};
+  int cmd = InputMouse(1, &menuPos, gameState.now);
+  if (CMD_NONE != cmd) {
+    if (gameState.inputMode == GAME_MODE) {
+      gameState.inputMode = MENU_MODE;
+    } else {
+      gameState.inputMode = GAME_MODE;
+    }
+  }
 
-  DrawFPS(10, 10);
-  if (MENU_MODE == gameState.inputMode) {
-    DrawMenu(gameState.menu, (Position){.x = 2, .y = 1});
+  if (gameState.inputMode == GAME_MODE) {
+    DrawTexture(gameState.menuInactivePic, 2, 2, colorDim);
+  } else {
+    DrawTexture(gameState.menuActivePic, 2, 2, colorHover);
+    InputMouseMenu(gameState.menu, gameState.now);
+    DrawMenu(gameState.menu,
+             (Position){.x = menuPos.x, .y = menuPos.y + menuPos.height});
+  }
+
+  if (IsWindowFocused()) {
+    gameState.inputMode = UpdateMode(gameState.inputMode, gameState.now);
+    if (gameState.inputMode == MENU_MODE) {
+      int cmd = InputNav(gameState.now);
+      NavigateMenu(cmd, gameState.menu, gameState.now);
+    } else { // GAME_MODE
+      UpdateState(&gameState, &initialState);
+    }
   }
   EndDrawing();
+}
+
+int main() {
+  Setup();
+#if defined(PLATFORM_WEB)
+  emscripten_set_main_loop(Loop, 60, 1);
+#else
+  SetTargetFPS(60);            // Set our game to run at 60 frames-per-second
+  while (!WindowShouldClose()) // Detect window close button or ESC key
+  {
+    Loop();
+  }
+#endif
+  Unload();
+  return 0;
 }

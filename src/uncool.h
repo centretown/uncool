@@ -32,15 +32,22 @@ typedef struct GameState {
   MoveMode moveMode;
   Color labelColor;
   Color valueColor;
-  Texture2D background;
-  Texture2D projection;
+  Vector2 buttonSize;
+
   Earth *earth;
   double now;
   Vector3 source;
   Rectangle dest;
   Vector2 origin;
   float rotation;
+
+  Texture2D menuInactivePic;
+  Texture2D menuActivePic;
+  Texture2D background;
+  Texture2D projection;
+  Material material;
   Menu *menu;
+
   int currentShape;
   int shapeCount;
   Shape **shapes;
