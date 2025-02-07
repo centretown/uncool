@@ -1,7 +1,7 @@
 // uncool
-#include "raylib.h"
 #define DAVLIB_IMPLEMENTATION
 #include "uncool.h"
+#include "davlib.h"
 
 #define RLIGHTS_IMPLEMENTATION
 #include "rlights.h"
@@ -74,7 +74,7 @@ void LoadTextures() {
 static Color colorDim = (Color){.a = 63, .r = 96, .g = 255, .b = 255};
 static Color colorHover = (Color){.a = 255, .r = 96, .g = 255, .b = 255};
 
-void Setup() {
+void Load() {
   gameState.menu->custom = &gameState;
   initialState = gameState;
 
@@ -110,8 +110,7 @@ void Unload() {
 // Update and draw game frame
 void Loop(void) {
   gameState.now = GetTime();
-  gameState.dest.width = (float)GetRenderWidth();
-  gameState.dest.height = (float)GetRenderHeight();
+  gameState.menu->mousePos = GetMousePosition();
 
   Shape *shape = gameState.shapes[gameState.currentShape];
   Vector3 pos = shape->Position(shape);
@@ -120,7 +119,7 @@ void Loop(void) {
                  SHADER_UNIFORM_VEC3);
 
   BeginDrawing();
-  ClearBackground(BLACK);
+  ClearBackground(gameState.backgroundColor);
   BeginMode3D(gameState.camera);
   BeginShaderMode(shader);
   shape->Draw(shape);
@@ -128,11 +127,11 @@ void Loop(void) {
   EndShaderMode();
   EndMode3D();
   // DrawFPS(10, 10);
-  Rectangle menuPos = (Rectangle){.x = 2,
+  Rectangle menuPos = (Rectangle){.x = 5,
                                   .y = 2,
                                   .width = gameState.menuActivePic.width,
                                   .height = gameState.menuActivePic.height};
-  int cmd = InputMouse(1, &menuPos, gameState.now);
+  int cmd = InputMouse(1, &menuPos, gameState.now, gameState.menu->mousePos);
   if (CMD_NONE != cmd) {
     if (gameState.inputMode == GAME_MODE) {
       gameState.inputMode = MENU_MODE;
@@ -163,7 +162,8 @@ void Loop(void) {
 }
 
 int main() {
-  Setup();
+  Load();
+
 #if defined(PLATFORM_WEB)
   emscripten_set_main_loop(Loop, 60, 1);
 #else
@@ -173,6 +173,7 @@ int main() {
     Loop();
   }
 #endif
+
   Unload();
   return 0;
 }

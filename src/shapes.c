@@ -7,7 +7,7 @@ Shape *gameShapes[] = {
     &(Shape){.typeID = MESH_POLY,
              .rate = rate,
              .shapePtr =
-                 &(ModelShape){
+                 &(MeshShape){
                      // .model = {0},
                      .position = {0.5f, 0.5f, 0.5f},
                      .rotationAxis = {0.0f, 0.0f, 0.0f},
@@ -23,7 +23,7 @@ Shape *gameShapes[] = {
     &(Shape){.typeID = MESH_PLANE,
              .rate = rate,
              .shapePtr =
-                 &(ModelShape){
+                 &(MeshShape){
                      // .model = {0},
                      .position = {0.5f, 0.5f, 0.5f},
                      .rotationAxis = {0.0f, 0.0f, 0.0f},
@@ -41,7 +41,7 @@ Shape *gameShapes[] = {
     &(Shape){.typeID = MESH_CUBE,
              .rate = rate,
              .shapePtr =
-                 &(ModelShape){
+                 &(MeshShape){
                      // .model = {0},
                      .position = {0.5f, 0.5f, 0.5f},
                      .rotationAxis = {0.0f, 0.0f, 0.0f},
@@ -58,7 +58,7 @@ Shape *gameShapes[] = {
     &(Shape){.typeID = MESH_SPHERE,
              .rate = rate,
              .shapePtr =
-                 &(ModelShape){
+                 &(MeshShape){
                      // .model = {0},
                      .position = {0.5f, 0.5f, 0.5f},
                      .rotationAxis = {0.0f, 0.0f, 0.0f},
@@ -75,7 +75,7 @@ Shape *gameShapes[] = {
     &(Shape){.typeID = MESH_HEMISPHERE,
              .rate = rate,
              .shapePtr =
-                 &(ModelShape){
+                 &(MeshShape){
                      // .model = {0},
                      .position = {0.5f, 0.5f, 0.5f},
                      .rotationAxis = {0.0f, 0.0f, 0.0f},
@@ -92,7 +92,7 @@ Shape *gameShapes[] = {
     &(Shape){.typeID = MESH_CYLINDER,
              .rate = rate,
              .shapePtr =
-                 &(ModelShape){
+                 &(MeshShape){
                      // .model = {0},
                      .position = {0.5f, 0.5f, 0.5f},
                      .rotationAxis = {0.0f, 0.0f, 0.0f},
@@ -109,7 +109,7 @@ Shape *gameShapes[] = {
     &(Shape){.typeID = MESH_CONE,
              .rate = rate,
              .shapePtr =
-                 &(ModelShape){
+                 &(MeshShape){
                      // .model = {0},
                      .position = {0.5f, 0.5f, 0.5f},
                      .rotationAxis = {0.0f, 0.0f, 0.0f},
@@ -126,7 +126,7 @@ Shape *gameShapes[] = {
     &(Shape){.typeID = MESH_TORUS,
              .rate = rate,
              .shapePtr =
-                 &(ModelShape){
+                 &(MeshShape){
                      // .model = {0},
                      .position = {0.5f, 0.5f, 0.5f},
                      .rotationAxis = {0.0f, 0.0f, 0.0f},
@@ -144,7 +144,7 @@ Shape *gameShapes[] = {
     &(Shape){.typeID = MESH_KNOT,
              .rate = rate,
              .shapePtr =
-                 &(ModelShape){
+                 &(MeshShape){
                      // .model = {0},
                      .position = {0.5f, 0.5f, 0.5f},
                      .rotationAxis = {0.0f, 0.0f, 0.0f},

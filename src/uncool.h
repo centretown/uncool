@@ -2,6 +2,7 @@
 #define UNCOOL_DEFINED
 
 #include "davlib.h"
+#include "raylib.h"
 typedef enum MoveMode {
   MODE_MOVE_SHAPE,
   MODE_MOVE_CAMERA_POSITION,
@@ -34,12 +35,12 @@ typedef struct GameState {
   Color valueColor;
   Vector2 buttonSize;
 
-  Earth *earth;
+  // Earth *earth;
   double now;
-  Vector3 source;
-  Rectangle dest;
-  Vector2 origin;
-  float rotation;
+  Color backgroundColor;
+  // Rectangle dest;
+  // Vector2 origin;
+  // float rotation;
 
   Texture2D menuInactivePic;
   Texture2D menuActivePic;

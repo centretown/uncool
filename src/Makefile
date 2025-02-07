@@ -158,23 +158,22 @@ endif
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
 CFLAGS = -std=c99 -Wall -Wno-missing-braces -Wno-unused-value -Wno-pointer-sign -D_DEFAULT_SOURCE $(PROJECT_CUSTOM_FLAGS)
 #CFLAGS += -Wextra -Wmissing-prototypes -Wstrict-prototypes
-
 ifeq ($(BUILD_MODE),DEBUG)
     CFLAGS += -g -D_DEBUG
 else
-    ifeq ($(PLATFORM),PLATFORM_WEB)
-        ifeq ($(BUILD_WEB_ASYNCIFY),TRUE)
-            CFLAGS += -O3
-        else
-            CFLAGS += -Os
-        endif
-    else
-        ifeq ($(PLATFORM_OS),OSX)
-            CFLAGS += -O2
-        else
-            CFLAGS += -s -O2
-        endif
-    endif
+	ifeq ($(PLATFORM),PLATFORM_WEB)
+	    ifeq ($(BUILD_WEB_ASYNCIFY),TRUE)
+	        CFLAGS += -O3
+	    else
+	        CFLAGS += -Os
+	    endif
+	else
+	    ifeq ($(PLATFORM_OS),OSX)
+	        CFLAGS += -O2
+	    else
+	        CFLAGS += -s -O2
+	    endif
+	endif
 endif
 ifeq ($(PLATFORM),PLATFORM_DRM)
     CFLAGS += -std=gnu99 -DEGL_NO_X11

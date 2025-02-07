@@ -5,44 +5,87 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#define GAME_STATE(mp) ((GameState *)(((Menu *)(mp)->custom)))
+// Handler Macros
+
+#define MENU_ITEM_CHOICE(menuptr)                                              \
+  Menu *menu = menuptr;                                                        \
+  assert(menu);                                                                \
+  assert(menu->custom);                                                        \
+  MenuItem *item = menu->items[menu->current];                                 \
+  int choiceCurrent = item->choiceCurrent;
+
+#define MENU_ITEM_FLOAT(menuptr)                                               \
+  Menu *menu = menuptr;                                                        \
+  assert(menu);                                                                \
+  assert(menu->custom);                                                        \
+  MenuItem *item = menu->items[menu->current];                                 \
+  float value = item->fvalue;
+
+#define MENU_ITEM_INT(menuptr)                                                 \
+  Menu *menu = menuptr;                                                        \
+  assert(menu);                                                                \
+  assert(menu->custom);                                                        \
+  MenuItem *item = menu->items[menu->current];                                 \
+  int value = item->ivalue;
+
+#define GAME_STATE(menuptr)                                                    \
+  Menu *menu = menuptr;                                                        \
+  assert(menu);                                                                \
+  assert(menu->custom);                                                        \
+  GameState *state = menu->custom;                                             \
+  MenuItem *item = menu->items[menu->current];                                 \
+  int choiceCurrent = item->choiceCurrent;
+
+#define GAME_STATE_INT(menuptr)                                                \
+  Menu *menu = menuptr;                                                        \
+  assert(menu);                                                                \
+  assert(menu->custom);                                                        \
+  GameState *state = menu->custom;                                             \
+  MenuItem *item = menu->items[menu->current];                                 \
+  int value = item->ivalue;
 
 // Handlers
 
-inline static GameState *GetGameState(void *menuptr) {
-  Menu *menu = menuptr;
-  assert(menu);
-  assert(menu->custom);
-  return menu->custom;
+void OnChooseShape(void *menuptr) {
+  GAME_STATE(menuptr);
+  state->currentShape = choiceCurrent;
 }
 
-void OnChooseShape(void *menuptr, int current, int currentChoice) {
-  GameState *state = GetGameState(menuptr);
-  state->currentShape = currentChoice;
+void OnChooseMode(void *menuptr) {
+  GAME_STATE(menuptr);
+  state->moveMode = choiceCurrent;
 }
 
-void OnChooseMode(void *menuptr, int current, int currentChoice) {
-  GameState *state = GetGameState(menuptr);
-  state->moveMode = currentChoice;
-}
-
-void OnChooseFont(void *menuptr, int current, int currentChoice) {
-  Menu *menu = menuptr;
-  assert(menu);
-  MenuItem *item = menu->items[current];
-  const char *choice = item->choices[currentChoice];
+void OnChooseFont(void *menuptr) {
+  MENU_ITEM_CHOICE(menuptr);
+  const char *choice = item->choices[choiceCurrent];
   menu->theme->fontSize = atoi(choice);
+}
+
+void OnSetBackgroundColorRed(void *menuptr) {
+  GAME_STATE_INT(menuptr);
+  state->backgroundColor.r = value;
+}
+
+void OnSetBackgroundColorGreen(void *menuptr) {
+  GAME_STATE_INT(menuptr);
+  state->backgroundColor.g = value;
+}
+
+void OnSetBackgroundColorBlue(void *menuptr) {
+  GAME_STATE_INT(menuptr);
+  state->backgroundColor.b = value;
 }
 
 static Theme theme = (Theme){
     .backgroundColor = BLACK,
-    .titleColor = (Color){.r = 0x00, .g = 0xf0, .b = 0x30, .a = 0x7f},
-    .labelColor = (Color){.r = 0x00, .g = 0x89, .b = 0x79, .a = 0x7f},
-    .valueColor = (Color){.r = 0x7b, .g = 0x4f, .b = 0x13, .a = 0x7f},
+    .titleColor = (Color){.r = 0x00, .g = 0xf0, .b = 0x30, .a = 0xcf},
+    .labelColor = (Color){.r = 0x00, .g = 0x89, .b = 0x79, .a = 0xcf},
+    .valueColor = (Color){.r = 0x7b, .g = 0x4f, .b = 0x13, .a = 0xcf},
 
-    .titleHover = (Color){.r = 0x00, .g = 0xf0, .b = 0x30, .a = 0xcf},
-    .labelHover = (Color){.r = 0x89, .g = 0x89, .b = 0x79, .a = 0xcf},
-    .valueHover = (Color){.r = 0x7b, .g = 0x4f, .b = 0x13, .a = 0xcf},
+    .titleHover = (Color){.r = 0x00, .g = 0xf0, .b = 0x30, .a = 0xef},
+    .labelHover = (Color){.r = 0x89, .g = 0x89, .b = 0x79, .a = 0xef},
+    .valueHover = (Color){.r = 0x7b, .g = 0x4f, .b = 0x13, .a = 0xef},
 
     .titleActive = (Color){.r = 0x00, .g = 0xf0, .b = 0x30, .a = 0xff},
     .labelActive = (Color){.r = 0x00, .g = 0x89, .b = 0x79, .a = 0xff},
@@ -53,6 +96,34 @@ static Theme theme = (Theme){
 
 static MenuItem *menuItems[] = {
     &(MenuItem){
+        .itemType = MENU_INT,
+        .label = "BG Red",
+        .ivalue = 0,
+        .imin = 0,
+        .imax = 256,
+        .iinc = 4,
+        .onChoose = OnSetBackgroundColorRed,
+    },
+    &(MenuItem){
+        .itemType = MENU_INT,
+        .label = "BG Green",
+        .ivalue = 0,
+        .imin = 0,
+        .imax = 256,
+        .iinc = 4,
+        .onChoose = OnSetBackgroundColorGreen,
+    },
+    &(MenuItem){
+        .itemType = MENU_INT,
+        .label = "BG Blue",
+        .ivalue = 0,
+        .imin = 0,
+        .imax = 256,
+        .iinc = 4,
+        .onChoose = OnSetBackgroundColorBlue,
+    },
+    &(MenuItem){
+        .itemType = MENU_CHOICE,
         .label = "Font Size",
         .choices =
             (char *[]){
@@ -67,6 +138,7 @@ static MenuItem *menuItems[] = {
         .onChoose = OnChooseFont,
     },
     &(MenuItem){
+        .itemType = MENU_CHOICE,
         .label = "Select Shape",
         .choices =
             (char *[]){
@@ -88,6 +160,7 @@ static MenuItem *menuItems[] = {
         .onChoose = OnChooseShape,
     },
     &(MenuItem){
+        .itemType = MENU_CHOICE,
         .label = "Current Mode",
         .choices =
             (char *[]){
@@ -132,11 +205,6 @@ GameState gameState = (GameState){
     .labelColor = YELLOW,
     .valueColor = ORANGE,
     .background = {0},
-    .earth = &(Earth){0},
-    .source = {0},
-    .dest = {0},
-    .origin = (Vector2){.x = 0, .y = 0},
-    .rotation = 0,
     .menu = &menu,
     .shapes = gameShapes,
     .currentShape = 0,

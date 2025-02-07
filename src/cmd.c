@@ -1,8 +1,8 @@
 #include "uncool.h"
 #include <inttypes.h>
 
-inline Vector3 UpdateVectorFromInput(Vector3 vec, Vector3 base, float scaleKey,
-                                     float scaleAxis, float scaleButton) {
+Vector3 UpdateVectorFromInput(Vector3 vec, Vector3 base, float scaleKey,
+                              float scaleAxis, float scaleButton) {
   vec = KeysToVector(vec, base, scaleKey);
   vec = AxesToVector(vec, scaleAxis);
   vec = ButtonsToVector(vec, base, scaleButton);
@@ -50,8 +50,9 @@ void UpdateState(GameState *state, GameState *initial) {
     break;
 
   case MODE_MOVE_BACKGROUND: {
-    state->source = UpdateVectorFromInput(state->source, initial->source, 10.0f,
-                                          10.0f, 10.0f);
+    // state->source = UpdateVectorFromInput(state->source,
+    // initial->source, 10.0f,
+    //                                       10.0f, 10.0f);
     break;
   }
 
