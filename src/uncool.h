@@ -37,16 +37,11 @@ typedef struct GameState {
 
   // Earth *earth;
   double now;
-  Color backgroundColor;
-  // Rectangle dest;
-  // Vector2 origin;
-  // float rotation;
-
-  Texture2D menuInactivePic;
-  Texture2D menuActivePic;
+  Theme *theme;
   Texture2D background;
   Texture2D projection;
   Material material;
+  Rectangle menuPos;
   Menu *menu;
 
   int currentShape;

@@ -1,3 +1,4 @@
+#include "raylib.h"
 #include "uncool.h"
 #include <inttypes.h>
 
@@ -13,7 +14,7 @@ InputMode UpdateMode(InputMode mode, double now) {
   int button = GAMEPAD_BUTTON_MIDDLE_RIGHT;
   int cmd = InputGamepad(1, &button, now);
   if (cmd == CMD_NONE) {
-    int key = KEY_F2;
+    int key = KEY_ENTER;
     cmd = InputKeys(1, &key, now);
     if (cmd == CMD_NONE) {
       return mode;

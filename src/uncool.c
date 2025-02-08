@@ -37,10 +37,15 @@ void CreateLights(Shader shader) {
 
 void LoadTextures() {
   // load resources
-  gameState.menuInactivePic = LoadTexture("resources/menu-20.png");
-  gameState.menuActivePic = LoadTexture("resources/menu_open-20.png");
-  gameState.menu->leftArrow = LoadTexture("resources/left-20.png");
-  gameState.menu->rightArrow = LoadTexture("resources/right-20.png");
+  gameState.theme->menuInactivePic = LoadTexture("resources/menu-20.png");
+  gameState.theme->menuActivePic = LoadTexture("resources/menu_open-20.png");
+  gameState.menuPos.width = gameState.theme->menuActivePic.width;
+  gameState.menuPos.height = gameState.theme->menuActivePic.height;
+
+  gameState.theme->leftArrow = LoadTexture("resources/left-20.png");
+  gameState.theme->rightArrow = LoadTexture("resources/right-20.png");
+  gameState.theme->inArrow = LoadTexture("resources/in-20.png");
+  gameState.theme->outArrow = LoadTexture("resources/out -20.png");
 
   // Load basic lighting shader
   shader = LoadShader(
@@ -71,9 +76,6 @@ void LoadTextures() {
   }
 }
 
-static Color colorDim = (Color){.a = 63, .r = 96, .g = 255, .b = 255};
-static Color colorHover = (Color){.a = 255, .r = 96, .g = 255, .b = 255};
-
 void Load() {
   gameState.menu->custom = &gameState;
   initialState = gameState;
@@ -101,16 +103,19 @@ void Unload() {
   UnloadShader(shader); // Unload shader
   // UnloadTexture(gameState.background);
   UnloadTexture(gameState.projection);
-  UnloadTexture(gameState.menuInactivePic);
-  UnloadTexture(gameState.menuActivePic);
-  UnloadTexture(gameState.menu->leftArrow);
-  UnloadTexture(gameState.menu->rightArrow);
+  UnloadTexture(gameState.theme->menuInactivePic);
+  UnloadTexture(gameState.theme->menuActivePic);
+
+  UnloadTexture(gameState.theme->leftArrow);
+  UnloadTexture(gameState.theme->rightArrow);
+  UnloadTexture(gameState.theme->inArrow);
+  UnloadTexture(gameState.theme->outArrow);
 }
 
 // Update and draw game frame
 void Loop(void) {
   gameState.now = GetTime();
-  gameState.menu->mousePos = GetMousePosition();
+  Vector2 mousePos = GetMousePosition();
 
   Shape *shape = gameState.shapes[gameState.currentShape];
   Vector3 pos = shape->Position(shape);
@@ -119,7 +124,7 @@ void Loop(void) {
                  SHADER_UNIFORM_VEC3);
 
   BeginDrawing();
-  ClearBackground(gameState.backgroundColor);
+  ClearBackground(gameState.theme->backgroundColor);
   BeginMode3D(gameState.camera);
   BeginShaderMode(shader);
   shape->Draw(shape);
@@ -127,11 +132,7 @@ void Loop(void) {
   EndShaderMode();
   EndMode3D();
   // DrawFPS(10, 10);
-  Rectangle menuPos = (Rectangle){.x = 5,
-                                  .y = 2,
-                                  .width = gameState.menuActivePic.width,
-                                  .height = gameState.menuActivePic.height};
-  int cmd = InputMouse(1, &menuPos, gameState.now, gameState.menu->mousePos);
+  int cmd = InputMouse(1, &gameState.menuPos, gameState.now, mousePos);
   if (CMD_NONE != cmd) {
     if (gameState.inputMode == GAME_MODE) {
       gameState.inputMode = MENU_MODE;
@@ -141,12 +142,16 @@ void Loop(void) {
   }
 
   if (gameState.inputMode == GAME_MODE) {
-    DrawTexture(gameState.menuInactivePic, 2, 2, colorDim);
+    DrawTexture(gameState.theme->menuInactivePic, 2, 2,
+                gameState.theme->colorDim);
   } else {
-    DrawTexture(gameState.menuActivePic, 2, 2, colorHover);
-    InputMouseMenu(gameState.menu, gameState.now);
-    DrawMenu(gameState.menu,
-             (Position){.x = menuPos.x, .y = menuPos.y + menuPos.height});
+    DrawTexture(gameState.theme->menuActivePic, 2, 2,
+                gameState.theme->colorHover);
+    InputMouseMenu(gameState.menu, gameState.now, mousePos);
+    DrawMenu(gameState.menu, gameState.theme,
+             (Vector2){.x = gameState.menuPos.x,
+                       .y = gameState.menuPos.y + gameState.menuPos.height},
+             mousePos);
   }
 
   if (IsWindowFocused()) {

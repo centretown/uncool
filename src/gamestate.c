@@ -57,24 +57,29 @@ void OnChooseMode(void *menuptr) {
 }
 
 void OnChooseFont(void *menuptr) {
-  MENU_ITEM_CHOICE(menuptr);
+  GAME_STATE(menuptr);
   const char *choice = item->choices[choiceCurrent];
-  menu->theme->fontSize = atoi(choice);
+  state->theme->fontSize = atoi(choice);
 }
 
 void OnSetBackgroundColorRed(void *menuptr) {
   GAME_STATE_INT(menuptr);
-  state->backgroundColor.r = value;
+  state->theme->backgroundColor.r = value;
 }
 
 void OnSetBackgroundColorGreen(void *menuptr) {
   GAME_STATE_INT(menuptr);
-  state->backgroundColor.g = value;
+  state->theme->backgroundColor.g = value;
 }
 
 void OnSetBackgroundColorBlue(void *menuptr) {
   GAME_STATE_INT(menuptr);
-  state->backgroundColor.b = value;
+  state->theme->backgroundColor.b = value;
+}
+
+void OnSetBackgroundColorAlpha(void *menuptr) {
+  GAME_STATE_INT(menuptr);
+  state->theme->backgroundColor.b = value;
 }
 
 static Theme theme = (Theme){
@@ -90,14 +95,18 @@ static Theme theme = (Theme){
     .titleActive = (Color){.r = 0x00, .g = 0xf0, .b = 0x30, .a = 0xff},
     .labelActive = (Color){.r = 0x00, .g = 0x89, .b = 0x79, .a = 0xff},
     .valueActive = (Color){.r = 0xcb, .g = 0x7f, .b = 0x13, .a = 0xff},
+    .colorDim = (Color){.a = 96, .r = 96, .g = 255, .b = 255},
+    .colorHover = (Color){.a = 255, .r = 96, .g = 255, .b = 255},
 
     .fontSize = 24,
+    .padding = 24,
+    .valueColumn = 15,
 };
 
-static MenuItem *menuItems[] = {
+static MenuItem *colorItems[] = {
     &(MenuItem){
         .itemType = MENU_INT,
-        .label = "BG Red",
+        .label = "Red",
         .ivalue = 0,
         .imin = 0,
         .imax = 256,
@@ -106,7 +115,7 @@ static MenuItem *menuItems[] = {
     },
     &(MenuItem){
         .itemType = MENU_INT,
-        .label = "BG Green",
+        .label = "Green",
         .ivalue = 0,
         .imin = 0,
         .imax = 256,
@@ -115,12 +124,39 @@ static MenuItem *menuItems[] = {
     },
     &(MenuItem){
         .itemType = MENU_INT,
-        .label = "BG Blue",
+        .label = "Blue",
         .ivalue = 0,
         .imin = 0,
         .imax = 256,
         .iinc = 4,
         .onChoose = OnSetBackgroundColorBlue,
+    },
+    &(MenuItem){
+        .itemType = MENU_INT,
+        .label = "Alpha",
+        .ivalue = 0,
+        .imin = 0,
+        .imax = 256,
+        .iinc = 4,
+        .onChoose = OnSetBackgroundColorAlpha,
+    },
+};
+
+Menu colorMenu = (Menu){
+    .title = "Colors",
+    .current = 0,
+    .custom = 0, // gamestate passed to handlers
+    .itemCount = sizeof(colorItems) / sizeof(colorItems[0]),
+    .items = colorItems,
+};
+
+static MenuItem *menuItems[] = {
+    &(MenuItem){
+        .itemType = MENU_SUB,
+        .label = "Background Color",
+        .menu = &colorMenu,
+        .itemCurrent = 0,
+        .itemCount = 256,
     },
     &(MenuItem){
         .itemType = MENU_CHOICE,
@@ -132,7 +168,7 @@ static MenuItem *menuItems[] = {
                 "40",
                 "48",
                 "56",
-                "18",
+                "20",
             },
         .choiceCount = 6,
         .onChoose = OnChooseFont,
@@ -177,16 +213,11 @@ static MenuItem *menuItems[] = {
 };
 
 Menu menu = (Menu){
-    .position = {.x = 1, .y = 1},
     .title = "Settings",
-    .theme = &theme,
-    .valueColumn = 12,
     .current = 0,
+    .custom = 0, // gamestate passed to handlers
     .itemCount = sizeof(menuItems) / sizeof(menuItems[0]),
     .items = menuItems,
-    .custom = 0, // gamestate passed to handlers
-    .colorDim = (Color){.a = 96, .r = 96, .g = 255, .b = 255},
-    .colorHover = (Color){.a = 255, .r = 96, .g = 255, .b = 255},
 };
 
 #include "shapes.c"
@@ -204,7 +235,8 @@ GameState gameState = (GameState){
     .inputMode = GAME_MODE,
     .labelColor = YELLOW,
     .valueColor = ORANGE,
-    .background = {0},
+    .theme = &theme,
+    .menuPos = (Rectangle){.x = 5, .y = 2, .width = 16.0f, .height = 16.0f},
     .menu = &menu,
     .shapes = gameShapes,
     .currentShape = 0,
