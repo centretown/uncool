@@ -1,3 +1,4 @@
+#include "davlib.h"
 #include "raylib.h"
 #include "uncool.h"
 #include <inttypes.h>
@@ -12,10 +13,10 @@ Vector3 UpdateVectorFromInput(Vector3 vec, Vector3 base, float scaleKey,
 
 InputMode UpdateMode(InputMode mode, double now, int menuKey) {
   int button = GAMEPAD_BUTTON_MIDDLE_RIGHT;
-  int cmd = InputGamepad(1, &button, now);
-  if (cmd == CMD_NONE) {
-    cmd = InputKeys(1, &menuKey, now);
-    if (cmd == CMD_NONE) {
+  Navigator nav = InputGamepad(1, &button, now);
+  if (nav.cmd == CMD_NONE) {
+    nav = InputKeys(1, &menuKey, now);
+    if (nav.cmd == CMD_NONE) {
       return mode;
     }
   }

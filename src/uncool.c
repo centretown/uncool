@@ -76,7 +76,14 @@ void LoadTextures() {
   }
 }
 
+// attaches default theme from davlib
+void AttachTheme() {
+  gameState.theme = DAV_theme;
+  gameState.menu->items[0]->menu = DAV_themeMenu;
+}
+
 void Load() {
+  AttachTheme();
   // Set MSAA 4X hint before windows creation
   SetConfigFlags(FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT |
                  FLAG_WINDOW_MAXIMIZED);
@@ -155,8 +162,8 @@ void Loop(void) {
     gameState.inputMode =
         UpdateMode(gameState.inputMode, gameState.now, KEY_F2);
     if (gameState.inputMode == MENU_MODE) {
-      int cmd = InputNav(gameState.now);
-      NavigateMenu(cmd, gameState.now);
+      Navigator nav = InputNav(gameState.now);
+      NavigateMenu(nav, gameState.now);
     } else { // GAME_MODE
       UpdateState(&gameState);
     }
