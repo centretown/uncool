@@ -2,85 +2,6 @@
 #include "davlib.h"
 #include "raylib.h"
 #include "uncool.h"
-#include <assert.h>
-#include <stdlib.h>
-
-// Handler Macros
-
-#define MENU_ITEM_CHOICE(menuptr)                                              \
-  Menu *menu = menuptr;                                                        \
-  assert(menu);                                                                \
-  assert(menu->custom);                                                        \
-  MenuItem *item = menu->items[menu->current];                                 \
-  int choiceCurrent = item->choiceCurrent;
-
-#define MENU_ITEM_FLOAT(menuptr)                                               \
-  Menu *menu = menuptr;                                                        \
-  assert(menu);                                                                \
-  assert(menu->custom);                                                        \
-  MenuItem *item = menu->items[menu->current];                                 \
-  float value = item->fvalue;
-
-#define MENU_ITEM_INT(menuptr)                                                 \
-  Menu *menu = menuptr;                                                        \
-  assert(menu);                                                                \
-  assert(menu->custom);                                                        \
-  MenuItem *item = menu->items[menu->current];                                 \
-  int value = item->ivalue;
-
-#define GAME_STATE(menuptr)                                                    \
-  Menu *menu = menuptr;                                                        \
-  assert(menu);                                                                \
-  assert(menu->custom);                                                        \
-  GameState *state = menu->custom;                                             \
-  MenuItem *item = menu->items[menu->current];                                 \
-  int choiceCurrent = item->choiceCurrent;
-
-#define GAME_STATE_INT(menuptr)                                                \
-  Menu *menu = menuptr;                                                        \
-  assert(menu);                                                                \
-  assert(menu->custom);                                                        \
-  GameState *state = menu->custom;                                             \
-  MenuItem *item = menu->items[menu->current];                                 \
-  int value = item->ivalue;
-
-// Handlers
-
-void OnChooseShape(void *menuptr) {
-  GAME_STATE(menuptr);
-  state->currentShape = choiceCurrent;
-}
-
-void OnChooseMode(void *menuptr) {
-  GAME_STATE(menuptr);
-  state->moveMode = choiceCurrent;
-}
-
-void OnChooseFont(void *menuptr) {
-  GAME_STATE(menuptr);
-  const char *choice = item->choices[choiceCurrent];
-  state->theme->fontSize = atoi(choice);
-}
-
-void OnSetBackgroundColorRed(void *menuptr) {
-  GAME_STATE_INT(menuptr);
-  state->theme->backgroundColor.r = value;
-}
-
-void OnSetBackgroundColorGreen(void *menuptr) {
-  GAME_STATE_INT(menuptr);
-  state->theme->backgroundColor.g = value;
-}
-
-void OnSetBackgroundColorBlue(void *menuptr) {
-  GAME_STATE_INT(menuptr);
-  state->theme->backgroundColor.b = value;
-}
-
-void OnSetBackgroundColorAlpha(void *menuptr) {
-  GAME_STATE_INT(menuptr);
-  state->theme->backgroundColor.b = value;
-}
 
 static Theme theme = (Theme){
     .backgroundColor = BLACK,
@@ -100,7 +21,7 @@ static Theme theme = (Theme){
 
     .fontSize = 24,
     .padding = 24,
-    .valueColumn = 15,
+    .valueColumn = 15.0f,
 };
 
 static MenuItem *colorItems[] = {
@@ -111,7 +32,7 @@ static MenuItem *colorItems[] = {
         .imin = 0,
         .imax = 256,
         .iinc = 4,
-        .onChoose = OnSetBackgroundColorRed,
+        .onChoose = OnSetColorRed,
     },
     &(MenuItem){
         .itemType = MENU_INT,
@@ -120,7 +41,7 @@ static MenuItem *colorItems[] = {
         .imin = 0,
         .imax = 256,
         .iinc = 4,
-        .onChoose = OnSetBackgroundColorGreen,
+        .onChoose = OnSetColorGreen,
     },
     &(MenuItem){
         .itemType = MENU_INT,
@@ -129,7 +50,7 @@ static MenuItem *colorItems[] = {
         .imin = 0,
         .imax = 256,
         .iinc = 4,
-        .onChoose = OnSetBackgroundColorBlue,
+        .onChoose = OnSetColorBlue,
     },
     &(MenuItem){
         .itemType = MENU_INT,
@@ -138,40 +59,117 @@ static MenuItem *colorItems[] = {
         .imin = 0,
         .imax = 256,
         .iinc = 4,
-        .onChoose = OnSetBackgroundColorAlpha,
+        .onChoose = OnSetColorAlpha,
     },
 };
 
-Menu colorMenu = (Menu){
+Menu colorMenuTemplate = (Menu){
     .title = "Colors",
     .current = 0,
-    .custom = 0, // gamestate passed to handlers
     .itemCount = sizeof(colorItems) / sizeof(colorItems[0]),
     .items = colorItems,
+};
+
+static MenuItem *themeItems[] = {&(MenuItem){
+                                     .itemType = MENU_CHOICE,
+                                     .label = "Font Size",
+                                     .choices =
+                                         (char *[]){
+                                             "24",
+                                             "32",
+                                             "40",
+                                             "48",
+                                             "56",
+                                             "20",
+                                         },
+                                     .choiceCount = 6,
+                                     .onChoose = OnChooseFont,
+                                 },
+                                 &(MenuItem){
+                                     .itemType = MENU_SUB,
+                                     .label = "Title Color",
+                                     .menu = &colorMenuTemplate,
+                                     .onPush = OnPushTitleColor,
+                                 },
+                                 &(MenuItem){
+                                     .itemType = MENU_SUB,
+                                     .label = "Title Active",
+                                     .menu = &colorMenuTemplate,
+                                     .onPush = OnPushTitleActive,
+                                 },
+                                 &(MenuItem){
+                                     .itemType = MENU_SUB,
+                                     .label = "Title Hover",
+                                     .menu = &colorMenuTemplate,
+                                     .onPush = OnPushTitleHover,
+                                 },
+                                 &(MenuItem){
+                                     .itemType = MENU_SUB,
+                                     .label = "Label Color",
+                                     .menu = &colorMenuTemplate,
+                                     .onPush = OnPushLabelColor,
+                                 },
+                                 &(MenuItem){
+                                     .itemType = MENU_SUB,
+                                     .label = "Label Active",
+                                     .menu = &colorMenuTemplate,
+                                     .onPush = OnPushLabelActive,
+                                 },
+                                 &(MenuItem){
+                                     .itemType = MENU_SUB,
+                                     .label = "Label Hover",
+                                     .menu = &colorMenuTemplate,
+                                     .onPush = OnPushLabelHover,
+                                 },
+                                 &(MenuItem){
+                                     .itemType = MENU_SUB,
+                                     .label = "Value Color",
+                                     .menu = &colorMenuTemplate,
+                                     .onPush = OnPushValueColor,
+                                 },
+                                 &(MenuItem){
+                                     .itemType = MENU_SUB,
+                                     .label = "Value Active",
+                                     .menu = &colorMenuTemplate,
+                                     .onPush = OnPushValueActive,
+                                 },
+                                 &(MenuItem){
+                                     .itemType = MENU_SUB,
+                                     .label = "Value Hover",
+                                     .menu = &colorMenuTemplate,
+                                     .onPush = OnPushValueHover,
+                                 },
+                                 &(MenuItem){
+                                     .itemType = MENU_SUB,
+                                     .label = "Background Color",
+                                     .menu = &colorMenuTemplate,
+                                     .onPush = OnPushBackgroundColor,
+                                 },
+                                 &(MenuItem){
+                                     .itemType = MENU_SUB,
+                                     .label = "Color Dim",
+                                     .menu = &colorMenuTemplate,
+                                     .onPush = OnPushColorDim,
+                                 },
+                                 &(MenuItem){
+                                     .itemType = MENU_SUB,
+                                     .label = "Color Hover",
+                                     .menu = &colorMenuTemplate,
+                                     .onPush = OnPushColorHover,
+                                 }};
+
+Menu themeMenu = (Menu){
+    .title = "Theme",
+    .current = 0,
+    .itemCount = sizeof(themeItems) / sizeof(themeItems[0]),
+    .items = themeItems,
 };
 
 static MenuItem *menuItems[] = {
     &(MenuItem){
         .itemType = MENU_SUB,
-        .label = "Background Color",
-        .menu = &colorMenu,
-        .itemCurrent = 0,
-        .itemCount = 256,
-    },
-    &(MenuItem){
-        .itemType = MENU_CHOICE,
-        .label = "Font Size",
-        .choices =
-            (char *[]){
-                "24",
-                "32",
-                "40",
-                "48",
-                "56",
-                "20",
-            },
-        .choiceCount = 6,
-        .onChoose = OnChooseFont,
+        .label = "Theme",
+        .menu = &themeMenu,
     },
     &(MenuItem){
         .itemType = MENU_CHOICE,
@@ -215,22 +213,23 @@ static MenuItem *menuItems[] = {
 Menu menu = (Menu){
     .title = "Settings",
     .current = 0,
-    .custom = 0, // gamestate passed to handlers
     .itemCount = sizeof(menuItems) / sizeof(menuItems[0]),
     .items = menuItems,
 };
 
 #include "shapes.c"
 
+const Camera cameraOrigin = (Camera){
+    .position = (Vector3){.x = 3.0f, .y = 3.0f, .z = 2.0f},
+    .target = (Vector3){.x = 0.0f, .y = 0.0f, .z = 0.0f},
+    .up = (Vector3){.x = 0.0f, .y = 1.0f, .z = 0.0f},
+    .fovy = 60.0f,
+    .projection = CAMERA_PERSPECTIVE,
+};
+
 GameState gameState = (GameState){
-    .camera =
-        (Camera){
-            .position = (Vector3){.x = 3.0f, .y = 3.0f, .z = 2.0f},
-            .target = (Vector3){.x = 0.0f, .y = 0.0f, .z = 0.0f},
-            .up = (Vector3){.x = 0.0f, .y = 1.0f, .z = 0.0f},
-            .fovy = 60.0f,
-            .projection = CAMERA_PERSPECTIVE,
-        },
+    .camera = cameraOrigin,
+    .origin = cameraOrigin,
     .moveMode = MODE_MOVE_SHAPE,
     .inputMode = GAME_MODE,
     .labelColor = YELLOW,
@@ -242,5 +241,3 @@ GameState gameState = (GameState){
     .currentShape = 0,
     .shapeCount = sizeof(gameShapes) / sizeof(gameShapes[0]),
 };
-
-GameState initialState = {0};

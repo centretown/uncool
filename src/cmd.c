@@ -10,12 +10,11 @@ Vector3 UpdateVectorFromInput(Vector3 vec, Vector3 base, float scaleKey,
   return vec;
 }
 
-InputMode UpdateMode(InputMode mode, double now) {
+InputMode UpdateMode(InputMode mode, double now, int menuKey) {
   int button = GAMEPAD_BUTTON_MIDDLE_RIGHT;
   int cmd = InputGamepad(1, &button, now);
   if (cmd == CMD_NONE) {
-    int key = KEY_ENTER;
-    cmd = InputKeys(1, &key, now);
+    cmd = InputKeys(1, &menuKey, now);
     if (cmd == CMD_NONE) {
       return mode;
     }
@@ -24,7 +23,7 @@ InputMode UpdateMode(InputMode mode, double now) {
   return mode;
 }
 
-void UpdateState(GameState *state, GameState *initial) {
+void UpdateState(GameState *state) {
   Shape *shape = state->shapes[state->currentShape];
   switch (state->moveMode) {
   case MODE_MOVE_SHAPE: {
@@ -36,18 +35,18 @@ void UpdateState(GameState *state, GameState *initial) {
   }
   case MODE_MOVE_CAMERA_POSITION:
     state->camera.position =
-        UpdateVectorFromInput(state->camera.position, initial->camera.position,
+        UpdateVectorFromInput(state->camera.position, state->origin.position,
                               shape->rate.x, shape->rate.y, shape->rate.z);
     break;
   case MODE_MOVE_CAMERA_TARGET:
     state->camera.target =
-        UpdateVectorFromInput(state->camera.target, initial->camera.target,
+        UpdateVectorFromInput(state->camera.target, state->origin.target,
                               shape->rate.x, shape->rate.y, shape->rate.z);
     break;
   case MODE_MOVE_CAMERA_UP:
     state->camera.up =
-        UpdateVectorFromInput(state->camera.up, initial->camera.up,
-                              shape->rate.x, shape->rate.y, shape->rate.z);
+        UpdateVectorFromInput(state->camera.up, state->origin.up, shape->rate.x,
+                              shape->rate.y, shape->rate.z);
     break;
 
   case MODE_MOVE_BACKGROUND: {

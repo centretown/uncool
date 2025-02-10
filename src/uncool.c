@@ -1,7 +1,8 @@
 // uncool
+#include "raylib.h"
 #define DAVLIB_IMPLEMENTATION
-#include "uncool.h"
 #include "davlib.h"
+#include "uncool.h"
 
 #define RLIGHTS_IMPLEMENTATION
 #include "rlights.h"
@@ -17,8 +18,7 @@
 #endif
 
 // in gamestate.c
-extern GameState gameState, initialState;
-
+extern GameState gameState;
 static Shader shader = {0};
 static int ambientLoc = 0;
 static Light lights[MAX_LIGHTS] = {0};
@@ -45,7 +45,7 @@ void LoadTextures() {
   gameState.theme->leftArrow = LoadTexture("resources/left-20.png");
   gameState.theme->rightArrow = LoadTexture("resources/right-20.png");
   gameState.theme->inArrow = LoadTexture("resources/in-20.png");
-  gameState.theme->outArrow = LoadTexture("resources/out -20.png");
+  gameState.theme->outArrow = LoadTexture("resources/out-20.png");
 
   // Load basic lighting shader
   shader = LoadShader(
@@ -77,9 +77,6 @@ void LoadTextures() {
 }
 
 void Load() {
-  gameState.menu->custom = &gameState;
-  initialState = gameState;
-
   // Set MSAA 4X hint before windows creation
   SetConfigFlags(FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT |
                  FLAG_WINDOW_MAXIMIZED);
@@ -147,20 +144,21 @@ void Loop(void) {
   } else {
     DrawTexture(gameState.theme->menuActivePic, 2, 2,
                 gameState.theme->colorHover);
-    InputMouseMenu(gameState.menu, gameState.now, mousePos);
-    DrawMenu(gameState.menu, gameState.theme,
+    InputMouseMenu(gameState.now, mousePos);
+    DrawMenu(gameState.theme,
              (Vector2){.x = gameState.menuPos.x,
                        .y = gameState.menuPos.y + gameState.menuPos.height},
              mousePos);
   }
 
   if (IsWindowFocused()) {
-    gameState.inputMode = UpdateMode(gameState.inputMode, gameState.now);
+    gameState.inputMode =
+        UpdateMode(gameState.inputMode, gameState.now, KEY_F2);
     if (gameState.inputMode == MENU_MODE) {
       int cmd = InputNav(gameState.now);
-      NavigateMenu(cmd, gameState.menu, gameState.now);
+      NavigateMenu(cmd, gameState.now);
     } else { // GAME_MODE
-      UpdateState(&gameState, &initialState);
+      UpdateState(&gameState);
     }
   }
   EndDrawing();
@@ -168,6 +166,7 @@ void Loop(void) {
 
 int main() {
   Load();
+  PushMenu(gameState.menu);
 
 #if defined(PLATFORM_WEB)
   emscripten_set_main_loop(Loop, 60, 1);

@@ -28,6 +28,7 @@ typedef struct Earth {
 } Earth;
 
 typedef struct GameState {
+  Camera origin;
   Camera camera;
   InputMode inputMode;
   MoveMode moveMode;
@@ -58,10 +59,33 @@ typedef enum {
   CMD_MOVE_COUNT,
 } CmdID;
 
-void UpdateState(GameState *state, GameState *initial);
+void UpdateState(GameState *state);
 const char *ModeTitle(MoveMode mode);
 void DrawSettingsMenu(double now);
 void SetMenuState(GameState *state);
-InputMode UpdateMode(InputMode mode, double now);
+InputMode UpdateMode(InputMode mode, double now, int menuKey);
 
+// Handlers
+
+void OnChooseMode(Menu *menuptr);
+void OnChooseShape(Menu *menuptr);
+void OnChooseFont(Menu *menuptr);
+
+void OnSetColorRed(Menu *menuptr);
+void OnSetColorGreen(Menu *menuptr);
+void OnSetColorBlue(Menu *menuptr);
+void OnSetColorAlpha(Menu *menuptr);
+
+void OnPushTitleColor(Menu*menuptr);
+void OnPushTitleActive(Menu*menuptr);
+void OnPushTitleHover(Menu*menuptr);
+void OnPushLabelColor(Menu*menuptr);
+void OnPushLabelActive(Menu*menuptr);
+void OnPushLabelHover(Menu*menuptr);
+void OnPushValueColor(Menu*menuptr);
+void OnPushValueActive(Menu*menuptr);
+void OnPushValueHover(Menu*menuptr);
+void OnPushBackgroundColor(Menu*menuptr);
+void OnPushColorDim(Menu*menuptr);
+void OnPushColorHover(Menu*menuptr);
 #endif // UNCOOL_DEFINED
