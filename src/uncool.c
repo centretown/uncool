@@ -35,17 +35,20 @@ void CreateLights(Shader shader) {
                           shader);
 }
 
+void LoadThemeTextures() {
+  DAV_theme->menuInactive = LoadTexture("resources/menu.png");
+  DAV_theme->menuActive = LoadTexture("resources/menu_open.png");
+  DAV_theme->leftArrow = LoadTexture("resources/left.png");
+  DAV_theme->rightArrow = LoadTexture("resources/right.png");
+  DAV_theme->inArrow = LoadTexture("resources/in.png");
+  DAV_theme->outArrow = LoadTexture("resources/out.png");
+}
+
 void LoadTextures() {
   // load resources
-  gameState.theme->menuInactivePic = LoadTexture("resources/menu-20.png");
-  gameState.theme->menuActivePic = LoadTexture("resources/menu_open-20.png");
-  gameState.menuPos.width = gameState.theme->menuActivePic.width;
-  gameState.menuPos.height = gameState.theme->menuActivePic.height;
-
-  gameState.theme->leftArrow = LoadTexture("resources/left-20.png");
-  gameState.theme->rightArrow = LoadTexture("resources/right-20.png");
-  gameState.theme->inArrow = LoadTexture("resources/in-20.png");
-  gameState.theme->outArrow = LoadTexture("resources/out-20.png");
+  LoadThemeTextures();
+  gameState.menuPos.width = DAV_theme->menuActive.width;
+  gameState.menuPos.height = DAV_theme->menuActive.height;
 
   // Load basic lighting shader
   shader = LoadShader(
@@ -77,21 +80,27 @@ void LoadTextures() {
 }
 
 // attaches default theme from davlib
-void AttachTheme() {
-  gameState.theme = DAV_theme;
-  gameState.menu->items[0]->menu = DAV_themeMenu;
-}
+void AttachTheme() { gameState.menu->items[0]->menu = DAV_themeMenu; }
 
 void Load() {
   AttachTheme();
   // Set MSAA 4X hint before windows creation
+#if defined(PLATFORM_WEB)
   SetConfigFlags(FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT |
                  FLAG_WINDOW_MAXIMIZED);
+#else
+  SetConfigFlags(FLAG_WINDOW_HIGHDPI | FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT |
+                 FLAG_WINDOW_MAXIMIZED | FLAG_WINDOW_RESIZABLE);
+#endif
   SetTraceLogLevel(LOG_NONE);
 
   InitWindow(1260, 720, "Centretown - UNCOOL");
+
+#if defined(PLATFORM_WEB)
   int monitor = GetCurrentMonitor();
   SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
+#endif
+
   SetWindowPosition(0, 0);
 
   LoadTextures();
@@ -100,20 +109,22 @@ void Load() {
   InitShapes(gameState.shapeCount, gameState.shapes, gameState.material);
 }
 
+void UnloadThemeTextures() {
+  UnloadTexture(DAV_theme->menuInactive);
+  UnloadTexture(DAV_theme->menuActive);
+  UnloadTexture(DAV_theme->leftArrow);
+  UnloadTexture(DAV_theme->rightArrow);
+  UnloadTexture(DAV_theme->inArrow);
+  UnloadTexture(DAV_theme->outArrow);
+}
+
 void Unload() {
   for (int i = 0; i < gameState.shapeCount; i++) {
     gameState.shapes[i]->Unload(gameState.shapes[i]);
   }
   UnloadShader(shader); // Unload shader
-  // UnloadTexture(gameState.background);
+  UnloadThemeTextures();
   UnloadTexture(gameState.projection);
-  UnloadTexture(gameState.theme->menuInactivePic);
-  UnloadTexture(gameState.theme->menuActivePic);
-
-  UnloadTexture(gameState.theme->leftArrow);
-  UnloadTexture(gameState.theme->rightArrow);
-  UnloadTexture(gameState.theme->inArrow);
-  UnloadTexture(gameState.theme->outArrow);
 }
 
 // Update and draw game frame
@@ -128,7 +139,7 @@ void Loop(void) {
                  SHADER_UNIFORM_VEC3);
 
   BeginDrawing();
-  ClearBackground(gameState.theme->backgroundColor);
+  ClearBackground(DAV_theme->backgroundColor);
   BeginMode3D(gameState.camera);
   BeginShaderMode(shader);
   shape->Draw(shape);
@@ -136,8 +147,7 @@ void Loop(void) {
   EndShaderMode();
   EndMode3D();
   // DrawFPS(10, 10);
-  int cmd = InputMouse(1, &gameState.menuPos, gameState.now, mousePos);
-  if (CMD_NONE != cmd) {
+  if (InputMouseButton(gameState.menuPos, gameState.now, mousePos)) {
     if (gameState.inputMode == GAME_MODE) {
       gameState.inputMode = MENU_MODE;
     } else {
@@ -146,13 +156,10 @@ void Loop(void) {
   }
 
   if (gameState.inputMode == GAME_MODE) {
-    DrawTexture(gameState.theme->menuInactivePic, 2, 2,
-                gameState.theme->colorDim);
+    DrawTexture(DAV_theme->menuInactive, 2, 2, DAV_theme->colorDim);
   } else {
-    DrawTexture(gameState.theme->menuActivePic, 2, 2,
-                gameState.theme->colorHover);
-    InputMouseMenu(gameState.now, mousePos);
-    DrawMenu(gameState.theme,
+    DrawTexture(DAV_theme->menuActive, 2, 2, DAV_theme->colorHover);
+    DrawMenu(DAV_theme,
              (Vector2){.x = gameState.menuPos.x,
                        .y = gameState.menuPos.y + gameState.menuPos.height},
              mousePos);
@@ -162,7 +169,7 @@ void Loop(void) {
     gameState.inputMode =
         UpdateMode(gameState.inputMode, gameState.now, KEY_F2);
     if (gameState.inputMode == MENU_MODE) {
-      Navigator nav = InputNav(gameState.now);
+      Navigator nav = InputNav(gameState.now, mousePos);
       NavigateMenu(nav, gameState.now);
     } else { // GAME_MODE
       UpdateState(&gameState);

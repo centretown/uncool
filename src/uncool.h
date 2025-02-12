@@ -38,7 +38,6 @@ typedef struct GameState {
 
   // Earth *earth;
   double now;
-  Theme *theme;
   Texture2D background;
   Texture2D projection;
   Material material;
