@@ -42,6 +42,7 @@ void LoadThemeTextures() {
   DAV_theme->rightArrow = LoadTexture("resources/right.png");
   DAV_theme->inArrow = LoadTexture("resources/in.png");
   DAV_theme->outArrow = LoadTexture("resources/out.png");
+  // double_arrow_left.png
 }
 
 void LoadTextures() {
@@ -83,6 +84,7 @@ void LoadTextures() {
 void AttachTheme() { gameState.menu->items[0]->menu = DAV_themeMenu; }
 
 void Load() {
+  InitializeMenus();
   AttachTheme();
   // Set MSAA 4X hint before windows creation
 #if defined(PLATFORM_WEB)
